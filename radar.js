@@ -3,6 +3,7 @@ const { HttpsProxyAgent } = require('hpagent');
 const psl = require('psl');
 const RouteRecognizer = require('route-recognizer');
 const config = require('./config');
+const logger = require('./logger');
 
 let rules;
 let last_update;
@@ -33,7 +34,7 @@ function ruleHandler(rule, params, url, success, fail) {
             try {
                 reaultWithParams = rule.target(params, url);
             } catch (error) {
-                console.warn(error);
+                logger.warn(error);
                 reaultWithParams = '';
             }
         } else if (typeof rule.target === 'string') {

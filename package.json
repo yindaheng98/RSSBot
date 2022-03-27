@@ -1,0 +1,32 @@
+{
+  "name": "rssbot",
+  "version": "1.0.0",
+  "description": "RSSBot 是一个能帮你订阅 RSSHub 的 Telegram Bot",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "cross-env NODE_ENV=dev nodemon --inspect index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yindaheng98/RSSBot.git"
+  },
+  "keywords": [
+    "RSS"
+  ],
+  "author": "Howard Yin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yindaheng98/RSSBot/issues"
+  },
+  "homepage": "https://github.com/yindaheng98/RSSBot#readme",
+  "dependencies": {
+    "const": "^1.0.0",
+    "got": "11.8.3",
+    "hpagent": "^0.1.2",
+    "node-telegram-bot-api": "^0.56.0",
+    "psl": "^1.8.0",
+    "route-recognizer": "^0.3.4",
+    "winston": "^3.6.0"
+  }
+}
