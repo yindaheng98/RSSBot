@@ -1,13 +1,12 @@
-const { getPageRSSHub } = require('./radar');
+const { parseRSSHubLink } = require('./rsshub');
 const bot = require('./bot');
 
 // Matches "http://" or "https://"
 bot.onText(/^https*:\/\//, async (msg) => {
     const chatId = msg.chat.id;
     const text = msg.text;
-    const feeds = await getPageRSSHub(text);
-    for (let feed of feeds) {
-        const url = feed.url;
+    const urls = await parseRSSHubLink(text);
+    for (let url of urls) {
         bot.sendMessage(chatId, url);
     }
 });
