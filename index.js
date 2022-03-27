@@ -1,13 +1,5 @@
-const TelegramBot = require('node-telegram-bot-api');
 const { getPageRSSHub } = require('./radar');
-const config = require('./config');
-const logger = require('./logger');
-
-// replace the value below with the Telegram token you receive from @BotFather
-const token = config.telegram_bot_token;
-
-// Create a bot that uses 'polling' to fetch new updates
-const bot = new TelegramBot(token, { polling: true });
+const bot = require('./bot');
 
 // Matches "http://" or "https://"
 bot.onText(/^https*:\/\//, async (msg) => {
@@ -29,16 +21,4 @@ bot.onText(/^\/subscribe (.+)/, (msg, match) => {
     const chatId = msg.chat.id;
     const resp = match[1]; // the captured "whatever"
     bot.sendMessage(chatId, resp);
-});
-
-// Listen for any kind of message. There are different kinds of
-// messages.
-bot.on('message', (msg) => {
-    const chatId = msg.chat.id;
-    const username = msg.chat.username;
-    const text = msg.text;
-    logger.info(`Message from ${username}: ${text}`)
-
-    // send a message to the chat acknowledging receipt of their message
-    bot.sendMessage(chatId, `Received your message: ${text}`);
 });
