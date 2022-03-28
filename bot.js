@@ -17,11 +17,15 @@ bot.sendMessage = function (chatId, text, options) {
 // messages.
 bot.on('message', (msg) => {
     const chatId = msg.chat.id;
+    const msgId = msg.message_id;
     const text = msg.text;
     logger.info(`Message from ${chatId}: ${text}`)
 
     // send a message to the chat acknowledging receipt of their message
-    bot._sendMessage(chatId, `Received your message: ${text}`);
+    bot._sendMessage(chatId, 'Received your message', {
+        disable_web_page_preview: true,
+        reply_to_message_id: msgId
+    });
 });
 
 module.exports = bot;
