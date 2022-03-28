@@ -1,4 +1,4 @@
-const { getRSSHubLink } = require('./rsshub');
+const { getRSSHubLink } = require('./rsshub/rsshub');
 const bot = require('./bot');
 
 // Matches "http://" or "https://"

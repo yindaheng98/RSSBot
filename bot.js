@@ -1,6 +1,6 @@
 const TelegramBot = require('node-telegram-bot-api');
 const config = require('./config');
-const logger = require('./logger');
+const logger = require('./utils/logger');
 
 // replace the value below with the Telegram token you receive from @BotFather
 const token = config.telegram_bot_token;
