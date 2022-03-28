@@ -1,4 +1,4 @@
-const got = require('./got');
+const got = require('./utils/got');
 const config = require('./config');
 
 let rules;

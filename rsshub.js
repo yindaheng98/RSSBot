@@ -1,8 +1,8 @@
-const got = require('./got');
+const got = require('./utils/got');
 const logger = require('./logger');
 const config = require('./config')
-const { getPageRSSHub: rssaidGet } = require('./rssaid');
-const { getPageRSSHub: radarGet } = require('./radar');
+const { getPageRSSHub: rssaidGet } = require('./rule-driver/rssaid');
+const { getPageRSSHub: radarGet } = require('./rule-driver/radar');
 const { getRules } = require("./rules");
 
 async function getPageRSSHub(data) {
