@@ -1,6 +1,6 @@
 const { resolve } = require('path');
 const winston = require('winston');
-const config = require('./config');
+const config = require('@/config');
 
 let transports = [];
 if (!config.no_logfiles) {

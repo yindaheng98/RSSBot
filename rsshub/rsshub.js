@@ -1,5 +1,5 @@
 const got = require('./utils/got');
-const logger = require('./logger');
+const logger = require('./utils/logger');
 const config = require('./config')
 const { getPageRSSHub: rssaidGet } = require('./rule-driver/rssaid');
 const { getPageRSSHub: radarGet } = require('./rule-driver/radar');

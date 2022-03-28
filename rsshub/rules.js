@@ -1,5 +1,5 @@
-const got = require('./utils/got');
-const config = require('./config');
+const got = require('../utils/got');
+const config = require('../config');
 
 let rules;
 let last_update;
