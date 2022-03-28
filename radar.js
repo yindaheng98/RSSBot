@@ -1,40 +1,19 @@
-const got = require('got');
-const { HttpsProxyAgent } = require('hpagent');
+//import psl from 'psl';
+//import RouteRecognizer from 'route-recognizer';
 const psl = require('psl');
 const RouteRecognizer = require('route-recognizer');
-const config = require('./config');
-const logger = require('./logger');
+const jsdom = require('jsdom');
 
-let rules;
-let last_update;
-
-async function getRules() {
-    if (rules && last_update && (Date.now() - last_update) < config.radar_update_interval)
-        return rules;
-    const response = await got(
-        {
-            method: 'get',
-            url: config.radar_url,
-            agent: {
-                https: new HttpsProxyAgent({
-                    proxy: config.proxy
-                })
-            }
-        }
-    )
-    rules = eval(response.body);
-    last_update = Date.now();
-    return rules;
-}
-
-function ruleHandler(rule, params, url, success, fail) {
+function ruleHandler(rule, params, url, html, success, fail) {
     const run = () => {
         let reaultWithParams;
         if (typeof rule.target === 'function') {
+            const parser = new jsdom.JSDOM(html);
+            const document = parser.window.document;
             try {
-                reaultWithParams = rule.target(params, url);
+                reaultWithParams = rule.target(params, url, document);
             } catch (error) {
-                logger.warn(error);
+                console.warn(error);
                 reaultWithParams = '';
             }
         } else if (typeof rule.target === 'string') {
@@ -64,8 +43,14 @@ function formatBlank(str1, str2) {
         return (str1 || '') + (str2 || '');
     }
 }
-async function getPageRSSHub(url) {
-    const rules = await getRules();
+
+function parseRules(rules) {
+    return typeof rules === 'string' ? window['lave'.split('').reverse().join('')](rules) : rules;
+}
+
+function getPageRSSHub(data) {
+    const { url, html } = data;
+    const rules = parseRules(data.rules);
 
     const parsedDomain = psl.parse(new URL(url).hostname);
     if (parsedDomain && parsedDomain.domain) {
@@ -122,6 +107,7 @@ async function getPageRSSHub(url) {
                                     rule[recog.handler],
                                     recog.params,
                                     url,
+                                    html,
                                     (parsed) => {
                                         if (parsed) {
                                             result.push({
@@ -157,4 +143,47 @@ async function getPageRSSHub(url) {
     }
 }
 
-module.exports = { getPageRSSHub };
+function getWebsiteRSSHub(data) {
+    const { url } = data;
+    const rules = parseRules(data.rules);
+    const parsedDomain = psl.parse(new URL(url).hostname);
+    if (parsedDomain && parsedDomain.domain) {
+        const domain = parsedDomain.domain;
+        if (rules[domain]) {
+            const domainRules = [];
+            for (const subdomainRules in rules[domain]) {
+                if (subdomainRules[0] !== '_') {
+                    domainRules.push(...rules[domain][subdomainRules]);
+                }
+            }
+            return domainRules.map((rule) => ({
+                title: formatBlank(rules[domain]._name, rule.title),
+                url: rule.docs,
+                isDocs: true,
+            }));
+        } else {
+            return [];
+        }
+    } else {
+        return [];
+    }
+}
+
+function getList(data) {
+    const rules = parseRules(data.rules);
+    for (const rule in rules) {
+        for (const subrule in rules[rule]) {
+            if (subrule[0] !== '_') {
+                rules[rule][subrule].forEach((item) => {
+                    delete item.source;
+                    delete item.target;
+                    delete item.script;
+                    delete item.verification;
+                });
+            }
+        }
+    }
+    return rules;
+}
+
+module.exports = { getPageRSSHub }

@@ -1,4 +1,4 @@
-const { parseRSSHubLink } = require('./rsshub');
+const { getRSSHubLink } = require('./rsshub');
 const bot = require('./bot');
 
 // Matches "http://" or "https://"
@@ -6,12 +6,20 @@ bot.onText(/^https*:\/\//, async (msg) => {
     const chatId = msg.chat.id;
     const msgId = msg.message_id;
     const text = msg.text;
-    const urls = await parseRSSHubLink(text);
-    for (let url of urls) {
-        bot.sendMessage(chatId, url, {
-            reply_to_message_id: msgId
-        });
+    const feeds = await getRSSHubLink(text);
+    const inline_keyboards = []
+    for (let feed of feeds) {
+        inline_keyboards.push({
+            text: feed.title,
+            url: feed.url
+        })
     }
+    bot.sendMessage(chatId, "Please select a link to subscribe:", {
+        reply_to_message_id: msgId,
+        reply_markup: {
+            inline_keyboard: [inline_keyboards]
+        }
+    });
 });
 
 // Matches "/subscribe [whatever]"

@@ -1,11 +1,43 @@
-const { getPageRSSHub } = require('./radar');
-async function parseRSSHubLink(url) {
-    const feeds = await getPageRSSHub(url);
-    const rsshubs = []
-    for (let feed of feeds) {
-        const url = feed.url;
-        rsshubs.push(url.replace('{rsshubDomain}', config.rsshub_domain))
+const got = require('./got');
+const logger = require('./logger');
+const config = require('./config')
+const { getPageRSSHub: rssaidGet } = require('./rssaid');
+const { getPageRSSHub: radarGet } = require('./radar');
+const { getRules } = require("./rules");
+
+async function getPageRSSHub(data) {
+    if (config.rsshub_parser === 'radar') {
+        return await radarGet({
+            url: data.url,
+            html: data.html,
+            rules: data.rules
+        });
     }
-    return rsshubs
+    return JSON.parse(await rssaidGet({
+        url: data.url,
+        host: data.host,
+        path: data.pathname,
+        html: data.html,
+        rules: data.rules
+    }));
 }
-module.exports = { parseRSSHubLink };
+
+async function getRSSHubLink(url) {
+    const { host, pathname } = new URL(url);
+    const rules = await getRules();
+    let html;
+    try {
+        const response = got(url);
+        html = response.body;
+    } catch (e) {
+        logger.warn(`Cannot get html from ${url}`);
+    }
+    const feeds = await getPageRSSHub(
+        { url, host, pathname, html, rules }
+    );
+    for (let feed of feeds) {
+        feed.url = feed.url.replace('{rsshubDomain}', config.rsshub_domain);
+    }
+    return feeds
+}
+module.exports = { getRSSHubLink };
