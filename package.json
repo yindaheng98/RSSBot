@@ -22,6 +22,7 @@
   "homepage": "https://github.com/yindaheng98/RSSBot#readme",
   "dependencies": {
     "const": "^1.0.0",
+    "global-agent": "^3.0.0",
     "got": "11.8.3",
     "hpagent": "^0.1.2",
     "node-telegram-bot-api": "^0.56.0",
