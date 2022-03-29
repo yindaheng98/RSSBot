@@ -9,15 +9,15 @@ bot.onText(/^https*:\/\//, async (msg) => {
     const feeds = await getRSSHubLink(text);
     const inline_keyboards = []
     for (let feed of feeds) {
-        inline_keyboards.push({
+        inline_keyboards.push([{
             text: feed.title,
             switch_inline_query_current_chat: feed.url
-        })
+        }])
     }
     bot.sendMessage(chatId, "Please select a link to subscribe:", {
         reply_to_message_id: msgId,
         reply_markup: {
-            inline_keyboard: [inline_keyboards]
+            inline_keyboard: inline_keyboards
         }
     });
 });
