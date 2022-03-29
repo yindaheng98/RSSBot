@@ -12,7 +12,7 @@ bot.onText(/^https*:\/\//, async (msg) => {
         inline_keyboards.push([{
             text: feed.title,
             switch_inline_query_current_chat: feed.url
-        }])
+        }]);
     }
     bot.sendMessage(chatId, "Please select a link to subscribe:", {
         reply_to_message_id: msgId,
@@ -21,6 +21,25 @@ bot.onText(/^https*:\/\//, async (msg) => {
         }
     });
 });
+
+(async function () {
+    await bot.onQuery(/https*:\/\/.+/, (msg, match) => {
+        const chatId = msg.chat.id;
+        const msgId = msg.message_id;
+        const link = match[0];
+        const inline_keyboards = [[]];
+        bot.sendMessage(chatId, "Please select a category:", {
+            reply_to_message_id: msgId,
+            reply_markup: {
+                inline_keyboard: inline_keyboards
+            }
+        });
+    });
+
+    await bot.onQuery(/^\/subscribe ([0-9]+) (https*:\/\/)/, (msg, match) => {
+
+    })
+})()
 
 // Matches "/subscribe [whatever]"
 bot.onText(/^\/subscribe (.+)/, (msg, match) => {

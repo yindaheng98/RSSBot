@@ -28,4 +28,28 @@ bot.on('message', (msg) => {
     });
 });
 
+let username;
+async function getUsername() {
+    if (!username) {
+        const me = await bot.getMe();
+        username = me.username;
+    }
+    return username;
+}
+
+bot.onQuery = async function (regexp, callback) {
+    const username = await getUsername();
+    bot.onText(new RegExp(`^@${username} (.+)`), (msg, match) => {
+        if (match && match.length > 1) {
+            const result = regexp.exec(match[1]);
+            if (!result) {
+                return false;
+            }
+            // reset index so we start at the beginning of the regex each time
+            regexp.lastIndex = 0;
+            callback(msg, result);
+        }
+    });
+}
+
 module.exports = bot;
