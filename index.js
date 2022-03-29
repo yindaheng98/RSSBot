@@ -11,7 +11,7 @@ bot.onText(/^https*:\/\//, async (msg) => {
     for (let feed of feeds) {
         inline_keyboards.push({
             text: feed.title,
-            url: feed.url
+            switch_inline_query_current_chat: feed.url
         })
     }
     bot.sendMessage(chatId, "Please select a link to subscribe:", {
