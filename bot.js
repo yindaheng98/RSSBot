@@ -37,7 +37,10 @@ async function getUsername() {
     return username;
 }
 
+let onQueryInit = 0;
 bot.onQuery = async function (regexp, callback) {
+    onQueryInit += 1;
+    logger.info(`Methods "onQuery" initializing: ${onQueryInit}`);
     const username = await getUsername();
     bot.onText(new RegExp(`^@${username} (.+)`), (msg, match) => {
         if (match && match.length > 1) {
@@ -50,6 +53,10 @@ bot.onQuery = async function (regexp, callback) {
             callback(msg, result);
         }
     });
+    onQueryInit -= 1;
+    if (onQueryInit <=0) {
+        logger.info('All Methods "onQuery" initialized');
+    }
 }
 
 module.exports = bot;

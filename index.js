@@ -22,33 +22,31 @@ bot.onText(/^https*:\/\//, async (msg) => {
     });
 });
 
-(async function () {
-    await bot.onQuery(/^https*:\/\/.+/, (msg, match) => {
-        const chatId = msg.chat.id;
-        const msgId = msg.message_id;
-        const link = match[0];
-        const inline_keyboards = [[{
-            text: 'Category 1',
-            switch_inline_query_current_chat: `/subscribe 1 ${link}`
-        }], [{
-            text: 'Category 2',
-            switch_inline_query_current_chat: `/subscribe 2 ${link}`
-        }]];
-        bot.sendMessage(chatId, "Please select a category:", {
-            reply_to_message_id: msgId,
-            reply_markup: {
-                inline_keyboard: inline_keyboards
-            }
-        });
+bot.onQuery(/^https*:\/\/.+/, (msg, match) => {
+    const chatId = msg.chat.id;
+    const msgId = msg.message_id;
+    const link = match[0];
+    const inline_keyboards = [[{
+        text: 'Category 1',
+        switch_inline_query_current_chat: `/subscribe 1 ${link}`
+    }], [{
+        text: 'Category 2',
+        switch_inline_query_current_chat: `/subscribe 2 ${link}`
+    }]];
+    bot.sendMessage(chatId, "Please select a category:", {
+        reply_to_message_id: msgId,
+        reply_markup: {
+            inline_keyboard: inline_keyboards
+        }
     });
+});
 
-    await bot.onQuery(/^\/subscribe ([0-9]+) (https*:\/\/.+)/, (msg, match) => {
-        const chatId = msg.chat.id;
-        const msgId = msg.message_id;
-        const cat = match[1];
-        const link = match[2];
-        bot.sendMessage(chatId, `Subscribe to ${cat}: ${link}`, {
-            reply_to_message_id: msgId
-        });
-    })
-})()
+bot.onQuery(/^\/subscribe ([0-9]+) (https*:\/\/.+)/, (msg, match) => {
+    const chatId = msg.chat.id;
+    const msgId = msg.message_id;
+    const cat = match[1];
+    const link = match[2];
+    bot.sendMessage(chatId, `Subscribe to ${cat}: ${link}`, {
+        reply_to_message_id: msgId
+    });
+})
