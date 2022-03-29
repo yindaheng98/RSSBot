@@ -23,11 +23,17 @@ bot.onText(/^https*:\/\//, async (msg) => {
 });
 
 (async function () {
-    await bot.onQuery(/https*:\/\/.+/, (msg, match) => {
+    await bot.onQuery(/^https*:\/\/.+/, (msg, match) => {
         const chatId = msg.chat.id;
         const msgId = msg.message_id;
         const link = match[0];
-        const inline_keyboards = [[]];
+        const inline_keyboards = [[{
+            text: 'Category 1',
+            switch_inline_query_current_chat: `/subscribe 1 ${link}`
+        }], [{
+            text: 'Category 2',
+            switch_inline_query_current_chat: `/subscribe 2 ${link}`
+        }]];
         bot.sendMessage(chatId, "Please select a category:", {
             reply_to_message_id: msgId,
             reply_markup: {
@@ -36,18 +42,13 @@ bot.onText(/^https*:\/\//, async (msg) => {
         });
     });
 
-    await bot.onQuery(/^\/subscribe ([0-9]+) (https*:\/\/)/, (msg, match) => {
-
+    await bot.onQuery(/^\/subscribe ([0-9]+) (https*:\/\/.+)/, (msg, match) => {
+        const chatId = msg.chat.id;
+        const msgId = msg.message_id;
+        const cat = match[1];
+        const link = match[2];
+        bot.sendMessage(chatId, `Subscribe to ${cat}: ${link}`, {
+            reply_to_message_id: msgId
+        });
     })
 })()
-
-// Matches "/subscribe [whatever]"
-bot.onText(/^\/subscribe (.+)/, (msg, match) => {
-    // 'msg' is the received Message from Telegram
-    // 'match' is the result of executing the regexp above on the text content
-    // of the message
-
-    const chatId = msg.chat.id;
-    const resp = match[1]; // the captured "whatever"
-    bot.sendMessage(chatId, resp);
-});
