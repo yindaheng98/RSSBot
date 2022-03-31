@@ -1,5 +1,25 @@
+const fs = require('fs');
+var path = require('path');
+const logger = require("./utils/logger");
+const config = require("./config");
+
 let db = {}; //主数据库
 let index = {}; //索引
+
+fs.mkdirSync(path.dirname(config.unsubscribe_db_path), { recursive: true });
+try {
+    db = JSON.parse(fs.readFileSync(config.unsubscribe_db_path));
+} catch (e) {
+    logger.warn("Cannot read database", e);
+}
+
+function write() {
+    const dbs = JSON.stringify(db);
+    return fs.writeFile(config.unsubscribe_db_path, dbs, (err) => {
+        if (err) logger.warn("Cannot write database", err);
+    });
+}
+
 
 async function putFeedToUrl(url, feed) {
     if (typeof db[url] !== 'object') { //如果没有记录这个url
@@ -7,6 +27,7 @@ async function putFeedToUrl(url, feed) {
     }
     db[url][feed.url] = feed; //在这个URL下加入feed
     index[feed.url] = url; //并加索引
+    write();
 }
 
 async function delUrlByFeedurl(feedurl) {
@@ -20,11 +41,12 @@ async function delUrlByFeedurl(feedurl) {
         }
         delete db[url]; //最后删除数据库
     }
+    write();
 }
 
 async function getAllUrl() {
     let urls = [];
-    for(let url in db) {
+    for (let url in db) {
         urls.push(url);
     }
     return urls
