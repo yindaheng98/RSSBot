@@ -9,7 +9,8 @@ config = {
     no_logfiles: envs.NO_LOGFILES,
     is_package: envs.IS_PACKAGE,
     rsshub_parser: envs.RSSHUB_PARSER || 'rssaid',
-    unsubscribe_check_cron: envs.UNSUB_CHECK_CRON || '30 * * * * *'
+    unsubscribe_check_cron: envs.UNSUB_CHECK_CRON || '30 * * * * *',
+    valid_username: envs.VALID_USERNAME
 }
 config.rsshub_domain = config.rsshub_domain.replace(/\/$/, '');
 module.exports = config;

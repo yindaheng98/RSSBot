@@ -27,7 +27,7 @@ async function getRSSHubLink(url) {
     const rules = await getRules();
     let html;
     try {
-        const response = got(url);
+        const response = await got(url);
         html = response.body;
     } catch (e) {
         logger.warn(`Cannot get html from ${url}`);

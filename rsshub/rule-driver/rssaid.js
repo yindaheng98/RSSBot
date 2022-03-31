@@ -50,7 +50,7 @@ function parseRules(rules) {
 
 function getPageRSSHub(data) {
     const { url, host, path, html } = data;
-    console.log("url: "+url+" host:"+ host +" path:"+path +" html:"+html+" rules:"+data.rules);
+    //console.log("url: "+url+" host:"+ host +" path:"+path +" html:"+html+" rules:"+data.rules);
     const rules = parseRules(data.rules);
     const parsedDomain = psl.parse(host);
     if (parsedDomain && parsedDomain.domain) {

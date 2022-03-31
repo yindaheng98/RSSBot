@@ -2,14 +2,16 @@ const { getRSSHubLink } = require('./rsshub');
 const bot = require('./bot');
 const db = require('./database');
 const config = require('./config');
-
-let chatId;
+const user = require('./user');
 
 // Matches "http://" or "https://"
-bot.onText(/^https*:\/\//, async (msg) => {
-    chatId = msg.chat.id;
+bot.onText(/^https*:\/\/[^\s]+/, async (msg, match) => {
+    const chatId = user.validate(msg);
+    if (!chatId) {
+        return;
+    }
     const msgId = msg.message_id;
-    const text = msg.text;
+    const text = match[0];
     const feeds = await getRSSHubLink(text);
     const inline_keyboards = []
     for (let feed of feeds) {
@@ -28,7 +30,10 @@ bot.onText(/^https*:\/\//, async (msg) => {
 });
 
 bot.onQuery(/^https*:\/\/.+/, (msg, match) => {
-    chatId = msg.chat.id;
+    const chatId = user.validate(msg);
+    if (!chatId) {
+        return;
+    }
     const msgId = msg.message_id;
     const link = match[0];
     const inline_keyboards = [[{
@@ -47,7 +52,10 @@ bot.onQuery(/^https*:\/\/.+/, (msg, match) => {
 });
 
 bot.onQuery(/^\/subscribe ([0-9]+) (https*:\/\/.+)/, (msg, match) => {
-    chatId = msg.chat.id;
+    const chatId = user.validate(msg);
+    if (!chatId) {
+        return;
+    }
     const msgId = msg.message_id;
     const cat = match[1];
     const link = match[2];
@@ -60,9 +68,12 @@ bot.onQuery(/^\/subscribe ([0-9]+) (https*:\/\/.+)/, (msg, match) => {
 const schedule = require('node-schedule');
 schedule.scheduleJob(config.unsubscribe_check_cron, async () => {
     const urls = await db.getAllUrl();
+    if (urls.length <= 0) return;
     let msg = "You have this unsubscribed link:\n\n";
     for (let url of urls) {
         msg += url + "\n";
     }
-    bot.sendMessage(chatId, msg);
+    for (let chatId of user.getChatIds()) {
+        bot.sendMessage(chatId, msg);
+    }
 });
