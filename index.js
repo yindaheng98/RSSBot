@@ -3,6 +3,7 @@ const bot = require('./bot');
 const db = require('./database');
 const config = require('./config');
 const user = require('./user');
+const rss = require('./rss/' + config.rss_driver)
 
 // Matches "http://" or "https://"
 bot.onText(/^https*:\/\/[^\s]+/, async (msg, match) => {
@@ -29,20 +30,21 @@ bot.onText(/^https*:\/\/[^\s]+/, async (msg, match) => {
     });
 });
 
-bot.onQuery(/^https*:\/\/.+/, (msg, match) => {
+bot.onQuery(/^https*:\/\/.+/, async (msg, match) => {
     const chatId = user.validate(msg);
     if (!chatId) {
         return;
     }
     const msgId = msg.message_id;
     const link = match[0];
-    const inline_keyboards = [[{
-        text: 'Category 1',
-        switch_inline_query_current_chat: `/subscribe 1 ${link}`
-    }], [{
-        text: 'Category 2',
-        switch_inline_query_current_chat: `/subscribe 2 ${link}`
-    }]];
+    let inline_keyboards = [];
+    for (let category of (await rss.getCategories())) {
+        const { title, id } = category;
+        inline_keyboards.push([{
+            text: title,
+            switch_inline_query_current_chat: `/subscribe ${id} ${link}`
+        }]);
+    }
     bot.sendMessage(chatId, "Please select a category:", {
         reply_to_message_id: msgId,
         reply_markup: {

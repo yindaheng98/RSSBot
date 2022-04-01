@@ -4,6 +4,7 @@
   "description": "RSSBot 是一个能帮你订阅 RSSHub 的 Telegram Bot",
   "main": "index.js",
   "scripts": {
+    "prepare": "cd node_modules/ttrss-js-api && npm install && npm run build",
     "start": "node index.js",
     "dev": "cross-env NODE_ENV=dev nodemon --inspect index.js"
   },
@@ -29,6 +30,7 @@
     "node-telegram-bot-api": "^0.56.0",
     "psl": "^1.8.0",
     "route-recognizer": "^0.3.4",
+    "ttrss-js-api": "git+https://github.com/yindaheng98/ttrss-js-api.git",
     "winston": "^3.6.0"
   }
 }
