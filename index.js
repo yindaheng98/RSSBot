@@ -34,6 +34,16 @@ bot.onQuery(/^\/parse (https*:\/\/.+)/, async (msg, match) => {
     await sendParse(match[1], msg);
 });
 
+bot.onQuery(/^\/unparse (https*:\/\/.+)/, async (msg, match) => {
+    const chatId = msg.chat.id;
+    const msgId = msg.message_id;
+    const url = match[1];
+    db.delUrl(url);
+    bot.sendMessage(chatId, `Canceled: ${url}`, {
+        reply_to_message_id: msgId
+    });
+});
+
 bot.onQuery(/^https*:\/\/.+/, async (msg, match) => {
     const chatId = msg.chat.id;
     const msgId = msg.message_id;
@@ -96,14 +106,4 @@ bot.onQuery(/^\/subscribe ([0-9]+) (https*:\/\/.+)/, async (msg, match) => {
         });
     }
     sendUnsubscribe();
-});
-
-bot.onQuery(/^\/unparse (https*:\/\/.+)/, async (msg, match) => {
-    const chatId = msg.chat.id;
-    const msgId = msg.message_id;
-    const url = match[1];
-    db.delUrl(url);
-    bot.sendMessage(chatId, `Canceled: ${url}`, {
-        reply_to_message_id: msgId
-    });
 });
