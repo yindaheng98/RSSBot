@@ -1,5 +1,5 @@
 const fs = require('fs');
-var path = require('path');
+const path = require('path');
 const logger = require("./utils/logger");
 const config = require("./config");
 
@@ -14,14 +14,13 @@ try {
 }
 
 function write() {
-    const dbs = JSON.stringify(db);
-    return fs.writeFile(config.unsubscribe_db_path, dbs, (err) => {
+    return fs.writeFile(config.unsubscribe_db_path, JSON.stringify(db), (err) => {
         if (err) logger.warn("Cannot write database", err);
     });
 }
 
 
-async function putFeedToUrl(url, feed) {
+function putFeedToUrl(url, feed) {
     if (typeof db[url] !== 'object') { //如果没有记录这个url
         db[url] = {}; //就创建
     }
@@ -30,7 +29,7 @@ async function putFeedToUrl(url, feed) {
     write();
 }
 
-async function delUrlByFeedurl(feedurl) {
+function delUrlByFeedurl(feedurl) {
     const url = index[feedurl] //索引里查url
     if (url) { //如果存在
         const feeds = db[url]; //就读取它的feed列表
@@ -44,7 +43,7 @@ async function delUrlByFeedurl(feedurl) {
     write();
 }
 
-async function getAllUrl() {
+function getAllUrl() {
     let urls = [];
     for (let url in db) {
         urls.push(url);

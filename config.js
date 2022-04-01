@@ -11,7 +11,8 @@ config = {
     rsshub_parser: envs.RSSHUB_PARSER || 'rssaid',
     unsubscribe_check_cron: envs.UNSUB_CHECK_CRON || '30 * * * * *',
     valid_username: envs.VALID_USERNAME,
-    unsubscribe_db_path: envs.UNSUB_DB_PATH || 'db/unsubscribe.json'
+    unsubscribe_db_path: envs.UNSUB_DB_PATH || 'db/unsubscribe.json',
+    user_db_path: envs.USER_DB_PATH || 'db/user.json'
 }
 config.rsshub_domain = config.rsshub_domain.replace(/\/$/, '');
 module.exports = config;
