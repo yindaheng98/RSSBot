@@ -5,7 +5,7 @@ const config = require('./config');
 const user = require('./user');
 const rss = require('./rss/' + config.rss_driver)
 
-async function sendParse(url, msg, bot) {
+async function sendParse(url, msg) {
     const chatId = msg.chat.id;
     const msgId = msg.message_id;
     const feeds = await getRSSHubLink(url);
@@ -27,11 +27,11 @@ async function sendParse(url, msg, bot) {
 }
 // Matches "http://" or "https://"
 bot.onText(/^https*:\/\/[^\s]+/, async (msg, match) => {
-    await sendParse(match[0], msg, bot);
+    await sendParse(match[0], msg);
 });
 
 bot.onQuery(/^\/parse (https*:\/\/.+)/, async (msg, match) => {
-    await sendParse(match[1], msg, bot);
+    await sendParse(match[1], msg);
 });
 
 bot.onQuery(/^https*:\/\/.+/, async (msg, match) => {
@@ -85,24 +85,24 @@ bot.onQuery(/^\/unparse (https*:\/\/.+)/, async (msg, match) => {
 });
 
 const schedule = require('node-schedule');
-schedule.scheduleJob(config.unsubscribe_check_cron, async () => {
+async function sendUnsubscribe() {
     const urls = await db.getAllUrl();
     if (urls.length <= 0) return;
     let msg = "You have this unsubscribed link:\n";
-    for (let url of urls) {
-        let inline_keyboards = [[{
-            text: 'Subscribe it',
-            switch_inline_query_current_chat: `/parse ${url}`
-        }, {
-            text: 'Cancel it',
-            switch_inline_query_current_chat: `/unparse ${url}`
-        }]];
-        for (let chatId of user.getChatIds()) {
-            bot.sendMessage(chatId, msg + url, {
-                reply_markup: {
-                    inline_keyboard: inline_keyboards
-                }
-            });
-        }
+    const url = urls[Math.floor(Math.random() * urls.length)]; //随机选一个返回
+    const inline_keyboards = [[{
+        text: 'Subscribe it',
+        switch_inline_query_current_chat: `/parse ${url}`
+    }, {
+        text: 'Cancel it',
+        switch_inline_query_current_chat: `/unparse ${url}`
+    }]];
+    for (let chatId of user.getChatIds()) {
+        bot.sendMessage(chatId, msg + url, {
+            reply_markup: {
+                inline_keyboard: inline_keyboards
+            }
+        });
     }
-});
+}
+schedule.scheduleJob(config.unsubscribe_check_cron, sendUnsubscribe);
