@@ -103,11 +103,11 @@ function getPageRSSHub(data) {
                         html);
                     if (parsed !== undefined) {
                         if (parsed) {
-                            console.log({
-                                title: formatBlank(rules[domain]._name ? '当前' : '', rule[recog.handler].title),
-                                url: '{rsshubDomain}' + parsed,
-                                path: parsed,
-                            })
+                            //console.log({
+                            //    title: formatBlank(rules[domain]._name ? '当前' : '', rule[recog.handler].title),
+                            //    url: '{rsshubDomain}' + parsed,
+                            //    path: parsed,
+                            //})
                             result.push({
                                 title: formatBlank(rules[domain]._name ? '当前' : '', rule[recog.handler].title),
                                 url: '{rsshubDomain}' + parsed,

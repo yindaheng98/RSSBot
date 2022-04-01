@@ -29,6 +29,10 @@ function putFeedToUrl(url, feed) {
     write();
 }
 
+function putUrl(url) {
+    
+}
+
 function delUrlByFeedurl(feedurl) {
     const url = index[feedurl] //索引里查url
     if (url) { //如果存在

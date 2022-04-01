@@ -15,7 +15,7 @@ async function sendParse(url, msg) {
             text: feed.title,
             switch_inline_query_current_chat: feed.url
         }]);
-        db.putFeedToUrl(url, feed);
+        db.putFeedToUrl(url, feed); //保存
     }
     bot.sendMessage(chatId, "Please select a link to subscribe:", {
         reply_to_message_id: msgId,
@@ -25,11 +25,18 @@ async function sendParse(url, msg) {
     });
 }
 
+async function saveParse(url) {
+    for (let feed of (await getRSSHubLink(url))) {
+        db.putFeedToUrl(url, feed);
+    }
+}
+
 async function sendParseTo(url, msg) {
+    saveParse(url); // 先保存再说
     const chatId = msg.chat.id;
     const msgId = msg.message_id;
     const inline_keyboards = [[{
-        text: 'Parse it',
+        text: 'Reparse it',
         switch_inline_query_current_chat: `/parse ${url}`
     }, {
         text: 'Cancel it',
