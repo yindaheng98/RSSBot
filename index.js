@@ -5,19 +5,17 @@ const config = require('./config');
 const user = require('./user');
 const rss = require('./rss/' + config.rss_driver)
 
-// Matches "http://" or "https://"
-bot.onText(/^https*:\/\/[^\s]+/, async (msg, match) => {
+async function sendParse(url, msg, bot) {
     const chatId = msg.chat.id;
     const msgId = msg.message_id;
-    const text = match[0];
-    const feeds = await getRSSHubLink(text);
+    const feeds = await getRSSHubLink(url);
     const inline_keyboards = []
     for (let feed of feeds) {
         inline_keyboards.push([{
             text: feed.title,
             switch_inline_query_current_chat: feed.url
         }]);
-        db.putFeedToUrl(text, feed);
+        db.putFeedToUrl(url, feed);
     }
     bot.sendMessage(chatId, "Please select a link to subscribe:", {
         reply_to_message_id: msgId,
@@ -25,6 +23,15 @@ bot.onText(/^https*:\/\/[^\s]+/, async (msg, match) => {
             inline_keyboard: inline_keyboards
         }
     });
+
+}
+// Matches "http://" or "https://"
+bot.onText(/^https*:\/\/[^\s]+/, async (msg, match) => {
+    await sendParse(match[0], msg, bot);
+});
+
+bot.onQuery(/^\/parse (https*:\/\/.+)/, async (msg, match) => {
+    await sendParse(match[1], msg, bot);
 });
 
 bot.onQuery(/^https*:\/\/.+/, async (msg, match) => {
