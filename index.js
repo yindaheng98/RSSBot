@@ -38,11 +38,12 @@ bot.onQuery(/^https*:\/\/.+/, async (msg, match) => {
     const msgId = msg.message_id;
     const link = match[0];
     let inline_keyboards = [];
-    for (let category of (await rss.getCategories())) {
-        const { title, id } = category;
+    const categories = await rss.getCategories();
+    for (let category_id in categories) {
+        const title = categories[category_id];
         inline_keyboards.push([{
             text: title,
-            switch_inline_query_current_chat: `/subscribe ${id} ${link}`
+            switch_inline_query_current_chat: `/subscribe ${category_id} ${link}`
         }]);
     }
     bot.sendMessage(chatId, "Please select a category:", {

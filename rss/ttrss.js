@@ -13,27 +13,31 @@ async function login() {
 }
 
 let titles = {};
-async function getCategories() {
+async function _getCategories() {
     await login();
     let all = await api.getCategories();
-    let categories = [];
     let _titles = {};
     for (let category of all) {
         if (category.id >= 0) {
-            categories.push(category);
             _titles[category.id] = category.title;
         }
     }
     titles = _titles;
-    return categories;
+}
+
+async function getCategories() {
+    if (JSON.stringify(titles) === '{}') {
+        await _getCategories();
+    }
+    return titles;
 }
 
 async function getCategoryTitle(category_id) {
     if (titles[category_id]) {
-        getCategories();
+        _getCategories();
         return titles[category_id]
     } else {
-        await getCategories();
+        await _getCategories();
         return titles[category_id]
     }
 }
