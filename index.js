@@ -23,15 +23,69 @@ async function sendParse(url, msg) {
             inline_keyboard: inline_keyboards
         }
     });
-
 }
+
+async function sendParseTo(url, msg) {
+    const chatId = msg.chat.id;
+    const msgId = msg.message_id;
+    const inline_keyboards = [[{
+        text: 'Parse it',
+        switch_inline_query_current_chat: `/parse ${url}`
+    }, {
+        text: 'Cancel it',
+        switch_inline_query_current_chat: `/unparse ${url}`
+    }]];
+    const categories = await rss.getCategories();
+    for (let category_id in categories) {
+        const title = categories[category_id];
+        inline_keyboards.unshift([{
+            text: title,
+            switch_inline_query_current_chat: `/parseto ${category_id} ${url}`
+        }]);
+    }
+    bot.sendMessage(chatId, `${url}\nPlease select a category to subscribe:`, {
+        reply_to_message_id: msgId,
+        reply_markup: {
+            inline_keyboard: inline_keyboards
+        }
+    });
+}
+
 // Matches "http://" or "https://"
 bot.onText(/^https*:\/\/[^\s]+/, async (msg, match) => {
-    await sendParse(match[0], msg);
+    if (config.select_mode === 'category first')
+        return await sendParseTo(match[0], msg);
+    else
+        return await sendParse(match[0], msg);
 });
 
 bot.onQuery(/^\/parse (https*:\/\/.+)/, async (msg, match) => {
-    await sendParse(match[1], msg);
+    if (config.select_mode === 'category first')
+        await sendParseTo(match[1], msg);
+    else
+        return await sendParse(match[1], msg);
+});
+
+bot.onQuery(/^\/parseto ([0-9]+) (https*:\/\/.+)/, async (msg, match) => {
+    const chatId = msg.chat.id;
+    const msgId = msg.message_id;
+    const category_id = parseInt(match[1]);
+    const category_title = await rss.getCategoryTitle(category_id);
+    const url = match[2];
+    const feeds = await getRSSHubLink(url);
+    const inline_keyboards = []
+    for (let feed of feeds) {
+        inline_keyboards.push([{
+            text: feed.title,
+            switch_inline_query_current_chat: `/subscribe ${category_id} ${feed.url}`
+        }]);
+    }
+    bot.sendMessage(chatId, `Please select a feed to subscribe to ${category_title}:`, {
+        reply_to_message_id: msgId,
+        reply_markup: {
+            inline_keyboard: inline_keyboards
+        }
+    });
 });
 
 bot.onQuery(/^\/unparse (https*:\/\/.+)/, async (msg, match) => {
