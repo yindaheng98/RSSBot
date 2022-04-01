@@ -43,6 +43,11 @@ function delUrlByFeedurl(feedurl) {
     write();
 }
 
+function delUrl(url) {
+    delete db[url]; //删除数据库
+    write();
+}
+
 function getAllUrl() {
     let urls = [];
     for (let url in db) {
@@ -51,4 +56,4 @@ function getAllUrl() {
     return urls
 }
 
-module.exports = { putFeedToUrl, delUrlByFeedurl, getAllUrl }
+module.exports = { putFeedToUrl, delUrlByFeedurl, delUrl, getAllUrl }

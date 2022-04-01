@@ -1,6 +1,7 @@
 const TelegramBot = require('node-telegram-bot-api');
 const config = require('./config');
 const logger = require('./utils/logger');
+const user = require('./user');
 
 // replace the value below with the Telegram token you receive from @BotFather
 const token = config.telegram_bot_token;
@@ -43,6 +44,9 @@ bot.onQuery = async function (regexp, callback) {
     logger.info(`Methods "onQuery" initializing: ${onQueryInit}`);
     const username = await getUsername();
     bot.onText(new RegExp(`^@${username} (.+)`), (msg, match) => {
+        if (!user.validate(msg)) {
+            return;
+        }
         if (match && match.length > 1) {
             const result = regexp.exec(match[1]);
             if (!result) {
@@ -54,7 +58,7 @@ bot.onQuery = async function (regexp, callback) {
         }
     });
     onQueryInit -= 1;
-    if (onQueryInit <=0) {
+    if (onQueryInit <= 0) {
         logger.info('All Methods "onQuery" initialized');
     }
 }
