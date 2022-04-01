@@ -55,35 +55,6 @@ bot.onQuery(/^https*:\/\/.+/, async (msg, match) => {
     });
 });
 
-bot.onQuery(/^\/subscribe ([0-9]+) (https*:\/\/.+)/, async (msg, match) => {
-    const chatId = msg.chat.id;
-    const msgId = msg.message_id;
-    const category_id = parseInt(match[1]);
-    const category_title = await rss.getCategoryTitle(category_id);
-    const feed_url = match[2];
-    const status = await rss.subscribeToFeed(category_id, feed_url);
-    if (status.code <= 0) {
-        bot.sendMessage(chatId, `Subscribed to ${category_title}: ${feed_url}`, {
-            reply_to_message_id: msgId
-        });
-        db.delUrlByFeedurl(feed_url);
-    } else {
-        bot.sendMessage(chatId, `Cannot subscribed to ${category_title}: ${JSON.stringify(status)}`, {
-            reply_to_message_id: msgId
-        });
-    }
-});
-
-bot.onQuery(/^\/unparse (https*:\/\/.+)/, async (msg, match) => {
-    const chatId = msg.chat.id;
-    const msgId = msg.message_id;
-    const url = match[1];
-    db.delUrl(url);
-    bot.sendMessage(chatId, `Canceled: ${url}`, {
-        reply_to_message_id: msgId
-    });
-});
-
 const schedule = require('node-schedule');
 async function sendUnsubscribe() {
     const urls = await db.getAllUrl();
@@ -106,3 +77,33 @@ async function sendUnsubscribe() {
     }
 }
 schedule.scheduleJob(config.unsubscribe_check_cron, sendUnsubscribe);
+
+bot.onQuery(/^\/subscribe ([0-9]+) (https*:\/\/.+)/, async (msg, match) => {
+    const chatId = msg.chat.id;
+    const msgId = msg.message_id;
+    const category_id = parseInt(match[1]);
+    const category_title = await rss.getCategoryTitle(category_id);
+    const feed_url = match[2];
+    const status = await rss.subscribeToFeed(category_id, feed_url);
+    if (status.code <= 0) {
+        bot.sendMessage(chatId, `Subscribed to ${category_title}: ${feed_url}`, {
+            reply_to_message_id: msgId
+        });
+        db.delUrlByFeedurl(feed_url);
+    } else {
+        bot.sendMessage(chatId, `Cannot subscribed to ${category_title}: ${JSON.stringify(status)}`, {
+            reply_to_message_id: msgId
+        });
+    }
+    sendUnsubscribe();
+});
+
+bot.onQuery(/^\/unparse (https*:\/\/.+)/, async (msg, match) => {
+    const chatId = msg.chat.id;
+    const msgId = msg.message_id;
+    const url = match[1];
+    db.delUrl(url);
+    bot.sendMessage(chatId, `Canceled: ${url}`, {
+        reply_to_message_id: msgId
+    });
+});
