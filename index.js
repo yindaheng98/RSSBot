@@ -168,3 +168,5 @@ bot.onQuery(/^\/subscribe ([0-9]+) (https*:\/\/.+)/, async (msg, match) => {
     }
     sendUnsubscribe();
 });
+
+module.exports = bot;
