@@ -80,6 +80,9 @@ bot.onQuery(/^\/parseto ([0-9]+) (https*:\/\/.+)/, async (msg, match) => {
     const category_title = await rss.getCategoryTitle(category_id);
     const url = match[2];
     const feeds = await getRSSHubLink(url);
+    if (feeds.length === 1) { // 如果只有一个就直接订阅之
+        return sendSubscribe(msg, category_id, feeds[0].url);
+    }
     const inline_keyboards = []
     for (let feed of feeds) {
         inline_keyboards.push([{
@@ -149,13 +152,11 @@ async function sendUnsubscribe() {
 }
 schedule.scheduleJob(config.unsubscribe_check_cron, sendUnsubscribe);
 
-bot.onQuery(/^\/subscribe ([0-9]+) (https*:\/\/.+)/, async (msg, match) => {
+async function sendSubscribe(msg, category_id, feed_url) {
     const chatId = msg.chat.id;
     const msgId = msg.message_id;
-    const category_id = parseInt(match[1]);
     const category_title = await rss.getCategoryTitle(category_id);
-    const feed_url = match[2];
-    const {ok, err} = await rss.subscribeToFeed(category_id, feed_url);
+    const { ok, err } = await rss.subscribeToFeed(category_id, feed_url);
     if (ok) {
         bot.sendMessage(chatId, `Subscribed to ${category_title}: ${feed_url}`, {
             reply_to_message_id: msgId
@@ -167,6 +168,11 @@ bot.onQuery(/^\/subscribe ([0-9]+) (https*:\/\/.+)/, async (msg, match) => {
         });
     }
     sendUnsubscribe();
+}
+bot.onQuery(/^\/subscribe ([0-9]+) (https*:\/\/.+)/, async (msg, match) => {
+    const category_id = parseInt(match[1]);
+    const feed_url = match[2];
+    sendSubscribe(msg, category_id, feed_url);
 });
 
 module.exports = bot;
