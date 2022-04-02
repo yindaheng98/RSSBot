@@ -44,7 +44,11 @@ async function getCategoryTitle(category_id) {
 
 async function subscribeToFeed(category_id, feed_url) {
     await login();
-    return await api.subscribeToFeed({ feed_url: feed_url, category_id: category_id });
+    const status = await api.subscribeToFeed({ feed_url: feed_url, category_id: category_id });
+    if (status.code <= 1) {
+        return { ok: true };
+    }
+    return { ok: false, err: JSON.stringify(status) };
 }
 
 module.exports = { getCategories, subscribeToFeed, getCategoryTitle }

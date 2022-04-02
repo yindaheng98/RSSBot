@@ -155,14 +155,14 @@ bot.onQuery(/^\/subscribe ([0-9]+) (https*:\/\/.+)/, async (msg, match) => {
     const category_id = parseInt(match[1]);
     const category_title = await rss.getCategoryTitle(category_id);
     const feed_url = match[2];
-    const status = await rss.subscribeToFeed(category_id, feed_url);
-    if (status.code <= 0) {
+    const {ok, err} = await rss.subscribeToFeed(category_id, feed_url);
+    if (ok) {
         bot.sendMessage(chatId, `Subscribed to ${category_title}: ${feed_url}`, {
             reply_to_message_id: msgId
         });
         db.delUrlByFeedurl(feed_url);
     } else {
-        bot.sendMessage(chatId, `Cannot subscribed to ${category_title}: ${JSON.stringify(status)}`, {
+        bot.sendMessage(chatId, `Cannot subscribed to ${category_title}: ${err}`, {
             reply_to_message_id: msgId
         });
     }
