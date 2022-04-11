@@ -11,29 +11,34 @@ async function saveParse(url) {
     }
 }
 
-async function sendParseTo(url, msg) {
-    saveParse(url); // 先保存再说
-    const chatId = msg.chat.id;
-    const msgId = msg.message_id;
-    const inline_keyboards = [[{
+async function catInlineKeyboards(url) {
+    const inline_keyboards = [];
+    const categories = await rss.getCategories();
+    for (let category_id in categories) {
+        const title = categories[category_id];
+        inline_keyboards.push([{
+            text: title,
+            switch_inline_query_current_chat: `/parseto ${category_id} ${url}`
+        }]);
+    }
+    inline_keyboards.push([{
         text: 'Reparse it',
         switch_inline_query_current_chat: `/parse ${url}`
     }, {
         text: 'Cancel it',
         switch_inline_query_current_chat: `/unparse ${url}`
-    }]];
-    const categories = await rss.getCategories();
-    for (let category_id in categories) {
-        const title = categories[category_id];
-        inline_keyboards.unshift([{
-            text: title,
-            switch_inline_query_current_chat: `/parseto ${category_id} ${url}`
-        }]);
-    }
+    }]);
+    return inline_keyboards
+}
+
+async function sendParseTo(url, msg) {
+    saveParse(url); // 先保存再说
+    const chatId = msg.chat.id;
+    const msgId = msg.message_id;
     bot.sendMessage(chatId, `${url}\nPlease select a category to subscribe:`, {
         reply_to_message_id: msgId,
         reply_markup: {
-            inline_keyboard: inline_keyboards
+            inline_keyboard: await catInlineKeyboards(url)
         }
     });
 }
@@ -86,17 +91,11 @@ const schedule = require('node-schedule');
 async function sendUnsubscribe() {
     const urls = await db.getAllUrl();
     if (urls.length <= 0) return;
-    let msg = "You have this unsubscribed link:\n";
     const url = urls[Math.floor(Math.random() * urls.length)]; //随机选一个返回
-    const inline_keyboards = [[{
-        text: 'Reparse it',
-        switch_inline_query_current_chat: `/parse ${url}`
-    }, {
-        text: 'Cancel it',
-        switch_inline_query_current_chat: `/unparse ${url}`
-    }]];
+    const msg = `You have this unsubscribed link:\n${url}\nPlease select a category to subscribe:`;
+    const inline_keyboards = await catInlineKeyboards(url);
     for (let chatId of user.getChatIds()) {
-        bot.sendMessage(chatId, msg + url, {
+        bot.sendMessage(chatId, msg, {
             reply_markup: {
                 inline_keyboard: inline_keyboards
             }
@@ -116,8 +115,15 @@ async function sendSubscribe(msg, category_id, feed_url) {
         });
         db.delUrlByFeedurl(feed_url);
     } else {
+        const inline_keyboards = [[{
+            text: 'Retry it',
+            switch_inline_query_current_chat: `/subscribe ${category_id} ${feed_url}`
+        }]];
         bot.sendMessage(chatId, `Cannot subscribed to ${category_title}: ${err}`, {
-            reply_to_message_id: msgId
+            reply_to_message_id: msgId,
+            reply_markup: {
+                inline_keyboard: inline_keyboards
+            }
         });
     }
     sendUnsubscribe();
