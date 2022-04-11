@@ -5,26 +5,6 @@ const config = require('./config');
 const user = require('./user');
 const rss = require('./rss/' + config.rss_driver)
 
-async function sendParse(url, msg) {
-    const chatId = msg.chat.id;
-    const msgId = msg.message_id;
-    const feeds = await getRSSHubLink(url);
-    const inline_keyboards = []
-    for (let feed of feeds) {
-        inline_keyboards.push([{
-            text: feed.title,
-            switch_inline_query_current_chat: feed.url
-        }]);
-        db.putFeedToUrl(url, feed); //保存
-    }
-    bot.sendMessage(chatId, "Please select a link to subscribe:", {
-        reply_to_message_id: msgId,
-        reply_markup: {
-            inline_keyboard: inline_keyboards
-        }
-    });
-}
-
 async function saveParse(url) {
     for (let feed of (await getRSSHubLink(url))) {
         db.putFeedToUrl(url, feed);
@@ -59,21 +39,15 @@ async function sendParseTo(url, msg) {
 }
 
 // Matches "http://" or "https://"
-bot.onText(/^https*:\/\/[^\s]+/, async (msg, match) => {
-    if (config.select_mode === 'category first')
-        return await sendParseTo(match[0], msg);
-    else
-        return await sendParse(match[0], msg);
+bot.onText(/^https*:\/\/[^\s]+/, async (msg, match) => { //选择要订阅到哪个目录下
+    return await sendParseTo(match[0], msg);
 });
 
-bot.onQuery(/^\/parse (https*:\/\/.+)/, async (msg, match) => {
-    if (config.select_mode === 'category first')
-        await sendParseTo(match[1], msg);
-    else
-        return await sendParse(match[1], msg);
+bot.onQuery(/^\/parse (https*:\/\/.+)/, async (msg, match) => { //选择要订阅到哪个目录下
+    return await sendParseTo(match[1], msg);
 });
 
-bot.onQuery(/^\/parseto ([0-9]+) (https*:\/\/.+)/, async (msg, match) => {
+bot.onQuery(/^\/parseto ([0-9]+) (https*:\/\/.+)/, async (msg, match) => { //已经选好了要订阅到哪个目录下，于是解析之
     const chatId = msg.chat.id;
     const msgId = msg.message_id;
     const category_id = parseInt(match[1]);
@@ -83,7 +57,7 @@ bot.onQuery(/^\/parseto ([0-9]+) (https*:\/\/.+)/, async (msg, match) => {
     if (feeds.length === 1) { // 如果只有一个就直接订阅之
         return sendSubscribe(msg, category_id, feeds[0].url);
     }
-    const inline_keyboards = []
+    const inline_keyboards = [];
     for (let feed of feeds) {
         inline_keyboards.push([{
             text: feed.title,
@@ -98,34 +72,13 @@ bot.onQuery(/^\/parseto ([0-9]+) (https*:\/\/.+)/, async (msg, match) => {
     });
 });
 
-bot.onQuery(/^\/unparse (https*:\/\/.+)/, async (msg, match) => {
+bot.onQuery(/^\/unparse (https*:\/\/.+)/, async (msg, match) => { //取消
     const chatId = msg.chat.id;
     const msgId = msg.message_id;
     const url = match[1];
     db.delUrl(url);
     bot.sendMessage(chatId, `Canceled: ${url}`, {
         reply_to_message_id: msgId
-    });
-});
-
-bot.onQuery(/^https*:\/\/.+/, async (msg, match) => {
-    const chatId = msg.chat.id;
-    const msgId = msg.message_id;
-    const link = match[0];
-    let inline_keyboards = [];
-    const categories = await rss.getCategories();
-    for (let category_id in categories) {
-        const title = categories[category_id];
-        inline_keyboards.push([{
-            text: title,
-            switch_inline_query_current_chat: `/subscribe ${category_id} ${link}`
-        }]);
-    }
-    bot.sendMessage(chatId, "Please select a category:", {
-        reply_to_message_id: msgId,
-        reply_markup: {
-            inline_keyboard: inline_keyboards
-        }
     });
 });
 
@@ -136,7 +89,7 @@ async function sendUnsubscribe() {
     let msg = "You have this unsubscribed link:\n";
     const url = urls[Math.floor(Math.random() * urls.length)]; //随机选一个返回
     const inline_keyboards = [[{
-        text: 'Subscribe it',
+        text: 'Reparse it',
         switch_inline_query_current_chat: `/parse ${url}`
     }, {
         text: 'Cancel it',
@@ -169,6 +122,7 @@ async function sendSubscribe(msg, category_id, feed_url) {
     }
     sendUnsubscribe();
 }
+
 bot.onQuery(/^\/subscribe ([0-9]+) (https*:\/\/.+)/, async (msg, match) => {
     const category_id = parseInt(match[1]);
     const feed_url = match[2];

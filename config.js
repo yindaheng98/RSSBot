@@ -16,8 +16,7 @@ config = {
     rss_driver: envs.RSS_DRIVER || 'ttrss',
     rss_host: envs.RSS_HOST,
     rss_username: envs.RSS_USERNAME,
-    rss_password: envs.RSS_PASSWORD,
-    select_mode: envs.PARSE_MODE || 'category first' // select category first or select RSSHub link first
+    rss_password: envs.RSS_PASSWORD
 }
 config.rsshub_domain = config.rsshub_domain.replace(/\/$/, '');
 module.exports = config;
