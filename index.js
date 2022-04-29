@@ -108,7 +108,7 @@ schedule.scheduleJob(config.unsubscribe_check_cron, sendUnsubscribe);
 async function sendSubscribe(msg, category_id, feed_url) {
     const chatId = msg.chat.id;
     const msgId = msg.message_id;
-    logger.log(`Subscribing: ${feed_url}`)
+    logger.info(`Subscribing: ${feed_url}`)
     const category_title = await rss.getCategoryTitle(category_id);
     let ok, err;
     if (('' + category_id) === await rss.isSubscribed(feed_url)) {
