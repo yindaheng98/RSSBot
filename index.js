@@ -142,4 +142,4 @@ bot.onQuery(/^\/subscribe ([0-9]+) (https*:\/\/.+)/, async (msg, match) => {
     sendSubscribe(msg, category_id, feed_url);
 });
 
-module.exports = bot;
+module.exports = { bot, rss, user };
