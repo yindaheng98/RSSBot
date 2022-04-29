@@ -109,10 +109,12 @@ async function sendSubscribe(msg, category_id, feed_url) {
     const msgId = msg.message_id;
     const category_title = await rss.getCategoryTitle(category_id);
     let ok, err;
-    if (category_id === await rss.isSubscribed(feed_url)) {
+    if (('' + category_id) === await rss.isSubscribed(feed_url)) {
         ok = true;
     } else {
-        ok, err = await rss.subscribeToFeed(category_id, feed_url);
+        const res = await rss.subscribeToFeed(category_id, feed_url);
+        ok = res.ok;
+        err = res.err;
     }
     if (ok) {
         bot.sendMessage(chatId, `Subscribed to ${category_title}: ${feed_url}`, {

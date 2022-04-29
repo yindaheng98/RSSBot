@@ -55,9 +55,11 @@ async function isSubscribed(feed_url) {
     await login();
     const categories = await getCategories();
     for (let category_id in categories) {
-        const feed = await api.getFeeds({ categoryId: category_id });
-        if (feed.feed_url === feed_url) {
-            return category_id
+        const feeds = await api.getFeeds({ categoryId: category_id });
+        for (let feed of feeds) {
+            if (feed.feed_url === feed_url) {
+                return category_id
+            }
         }
     }
 }
