@@ -13,6 +13,13 @@ try {
     logger.warn("Cannot read database", e);
 }
 
+for (let url in db) {
+    for (let feed_url in db[url]) {
+        const feed = db[url][feed_url];
+        index[feed.url] = url; //构建索引
+    }
+}
+
 function write() {
     return fs.writeFile(config.unsubscribe_db_path, JSON.stringify(db), (err) => {
         if (err) logger.warn("Cannot write database", err);
@@ -27,10 +34,6 @@ function putFeedToUrl(url, feed) {
     db[url][feed.url] = feed; //在这个URL下加入feed
     index[feed.url] = url; //并加索引
     write();
-}
-
-function putUrl(url) {
-    
 }
 
 function delUrlByFeedurl(feedurl) {
