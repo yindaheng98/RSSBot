@@ -88,6 +88,7 @@ bot.onQuery(/^\/unparse (https*:\/\/.+)/, async (msg, match) => { //取消
 });
 
 const schedule = require('node-schedule');
+const logger = require('./utils/logger');
 async function sendUnsubscribe() {
     const urls = await db.getAllUrl();
     if (urls.length <= 0) return;
@@ -107,6 +108,7 @@ schedule.scheduleJob(config.unsubscribe_check_cron, sendUnsubscribe);
 async function sendSubscribe(msg, category_id, feed_url) {
     const chatId = msg.chat.id;
     const msgId = msg.message_id;
+    logger.log(`Subscribing: ${feed_url}`)
     const category_title = await rss.getCategoryTitle(category_id);
     let ok, err;
     if (('' + category_id) === await rss.isSubscribed(feed_url)) {
