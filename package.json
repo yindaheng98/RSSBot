@@ -1,6 +1,6 @@
 {
   "name": "rss-telegram-bot",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "RSSBot 是一个能帮你订阅 RSSHub 的 Telegram Bot",
   "main": "index.js",
   "scripts": {

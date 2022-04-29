@@ -51,4 +51,15 @@ async function subscribeToFeed(category_id, feed_url) {
     return { ok: false, err: JSON.stringify(status) };
 }
 
-module.exports = { getCategories, subscribeToFeed, getCategoryTitle }
+async function isSubscribed(feed_url) {
+    await login();
+    const categories = await getCategories();
+    for (let category_id in categories) {
+        const feed = await api.getFeeds({ categoryId: category_id });
+        if (feed.feed_url === feed_url) {
+            return category_id
+        }
+    }
+}
+
+module.exports = { getCategories, subscribeToFeed, getCategoryTitle, isSubscribed }
