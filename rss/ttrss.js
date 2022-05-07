@@ -44,6 +44,19 @@ async function getCategoryTitle(category_id) {
 
 async function subscribeToFeed(category_id, feed_url) {
     await login();
+    const categories = await getCategories();
+    L:
+    for (let cid in categories) {
+        const feeds = await api.getFeeds({ categoryId: cid });
+        for (let feed of feeds) {
+            if (feed.feed_url === feed_url) {
+                if ('' + category_id !== cid) {
+                    await api.unsubscribeFeed({ feed_id: feed.id });
+                    break L;
+                }
+            }
+        }
+    }
     const status = await api.subscribeToFeed({ feed_url: feed_url, category_id: category_id });
     if (status.code <= 1) {
         return { ok: true };
