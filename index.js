@@ -4,6 +4,7 @@ const db = require('./database');
 const config = require('./config');
 const user = require('./user');
 const rss = require('./rss/' + config.rss_driver)
+const { search_cats_title_by_feeds } = require('./utils/search')
 
 async function saveParse(url) {
     for (let feed of (await getRSSHubLink(url))) {
@@ -93,7 +94,15 @@ async function sendUnsubscribe() {
     const urls = await db.getAllUrl();
     if (urls.length <= 0) return;
     const url = urls[Math.floor(Math.random() * urls.length)]; //随机选一个返回
-    const msg = `You have this unsubscribed link:\n${url}\nPlease select a category to subscribe:`;
+    let msg = `You have this unsubscribed link:\n${url}\nPlease select a category to subscribe:`;
+    let feeds = [];
+    for (let feed of await getRSSHubLink(url)) {
+        feeds.push(feed.url);
+    }
+    let category_ids = await search_cats_title_by_feeds(feeds, rss);
+    if (category_ids.length > 0) {
+        msg = `You have this subscribed link in ${category_ids.join(', ')}:\n${url}\nPlease select a category to update subscription:`;
+    }
     const inline_keyboards = await catInlineKeyboards(url);
     for (let chatId of user.getChatIds()) {
         bot.sendMessage(chatId, msg, {
