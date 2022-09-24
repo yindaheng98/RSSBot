@@ -5,6 +5,7 @@ const api = ApiFactory.build(config.rss_host);
 async function login() {
     try {
         if (await api.isLoggedIn()) {
+            await _getCategories();
             return;
         }
     } catch (e) {
