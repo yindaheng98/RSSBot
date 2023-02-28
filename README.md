@@ -1,6 +1,15 @@
 # RSSBot
 
-RSSBot 是一个能帮你订阅 RSSHub 的 Telegram Bot
+RSSBot 是一个能帮你保存链接和订阅 RSSHub 的 Telegram Bot。
+
+你是否对订阅源的质量要求很严格？
+你是否会一次集中收集大量的订阅源？觉得RSSAid不适合大量收集订阅源的使用场景？
+不想有乍看很好当场订阅过后细看却很烂的订阅源污染自己的数据库？
+看到优质订阅源没空细看想找个地方暂存留待以后再确定要不要订阅？
+
+这个小工具会保存你发送给它的所有链接，并辅助你在碎片时间完成订阅。
+一次发一大堆的链接也是可以的哦。
+不错过任何一个精彩的信息源，不放过任何一个垃圾的信息源。
 
 ## Use it
 
@@ -31,6 +40,14 @@ Select a category and send the message (e.g. select the category "Uncategorized"
 ![](_/use3.jpg)
 
 The RSSBot will convert the URL to an RSSHub link and call the API (e.g. [TTRSS API](https://tt-rss.org/wiki/ApiReference)) to subscribe to the RSSHub link.
+
+## Features: Save your URL
+
+RSSBot has a sample database to store all the URLs you sent.
+Only when RSSBot successfully subscribes to an RSSHub link, the related URL will be deleted from the database.
+
+RSSBot will randomly select a stored URL and send it to remind you.
+You can config the frequency with the environment variable `UNSUB_CHECK` and `UNSUB_CHECK_CRON`. See [`config.js`](config.js) for more detail.
 
 ## Config
 
