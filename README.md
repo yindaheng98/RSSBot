@@ -18,6 +18,7 @@ Run it
 ```sh
 git clone https://github.com/yindaheng98/RSSBot
 cd RSSBot
+export VALID_USERNAME=<your username, RSSBot will only reply messages sent from this username>
 export TELEGRAM_BOT_TOKEN=<your telegram bot token>
 export RSS_DRIVER=ttrss
 export RSS_HOST=<your ttrss host>
