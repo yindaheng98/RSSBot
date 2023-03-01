@@ -1,5 +1,5 @@
 const config = require('../config');
-const ApiFactory = require('ttrss-js-api').ApiFactory;
+const ApiFactory = require('ttrss-js-api2').ApiFactory;
 const api = ApiFactory.build(config.rss_host);
 
 async function login() {

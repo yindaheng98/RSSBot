@@ -1,11 +1,9 @@
 {
   "name": "rss-telegram-bot",
-  "version": "1.3.2",
+  "version": "1.4.0",
   "description": "RSSBot 是一个能帮你订阅 RSSHub 的 Telegram Bot",
   "main": "index.js",
   "scripts": {
-    "prepare": "cd node_modules/ttrss-js-api && npm install && npm run build",
-    "postinstall": "node scripts/postinstall.js",
     "start": "node index.js",
     "dev": "cross-env NODE_ENV=dev nodemon --inspect index.js"
   },
@@ -31,7 +29,7 @@
     "node-telegram-bot-api": "^0.56.0",
     "psl": "^1.8.0",
     "route-recognizer": "^0.3.4",
-    "ttrss-js-api": "git+https://github.com/yindaheng98/ttrss-js-api.git",
+    "ttrss-js-api2": "^0.0.5",
     "winston": "^3.6.0"
   }
 }
