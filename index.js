@@ -45,7 +45,7 @@ async function sendParseTo(url, msg) {
 }
 
 // Matches "http://" or "https://"
-bot.onText(/^https*:\/\/[^\s]+/, async (msg, match) => { //选择要订阅到哪个目录下
+bot.onValidText(/^https*:\/\/[^\s]+/, async (msg, match) => { //选择要订阅到哪个目录下
     return await sendParseTo(match[0], msg);
 });
 

@@ -39,12 +39,22 @@ async function getUsername() {
     return username;
 }
 
+bot.onValidText = function (regexp, callback) {
+    bot.onText(regexp, (msg, ...args) => {
+        if (!user.validate(msg)) {
+            bot._sendMessage(msg.chat.id, '下去！这是私家车');
+            return;
+        }
+        callback(msg, ...args)
+    });
+}
+
 let onQueryInit = 0;
 bot.onQuery = async function (regexp, callback) {
     onQueryInit += 1;
     logger.info(`Methods "onQuery" initializing: ${onQueryInit}`);
     const username = await getUsername();
-    bot.onText(new RegExp(`^@${username} (.+)`), (msg, match) => {
+    bot.onValidText(new RegExp(`^@${username} (.+)`), (msg, match) => {
         if (!user.validate(msg)) {
             return;
         }
