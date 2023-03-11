@@ -31,10 +31,18 @@ bot.on('message', (msg) => {
 });
 
 let username;
+let fetching = false;
 async function getUsername() {
     if (!username) {
-        const me = await bot.getMe();
-        username = me.username;
+        if (!fetching) {
+            fetching = true;
+            const me = await bot.getMe();
+            username = me.username;
+            fetching = false;
+        } else {
+            while (fetching)
+                await new Promise(resolve => setTimeout(resolve, 0));
+        }
     }
     return username;
 }
