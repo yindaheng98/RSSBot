@@ -18,13 +18,27 @@ Run it
 ```sh
 git clone https://github.com/yindaheng98/RSSBot
 cd RSSBot
-export VALID_USERNAME=<your username, RSSBot will only reply messages sent from this username>
+export VALID_USERNAME=<your Telegram username, RSSBot will only reply messages sent from this username>
 export TELEGRAM_BOT_TOKEN=<your telegram bot token>
 export RSS_DRIVER=ttrss
 export RSS_HOST=<your ttrss host>
 export RSS_USERNAME=<your ttrss username>
 export RSS_PASSWORD=<your ttrss password>
 npm run start
+```
+
+Or run it via docker
+
+```sh
+docker run --name rssbot --rm -it \
+    -v ./rssbot/db:/app/db \
+    -e VALID_USERNAME=<your Telegram username, RSSBot will only reply messages sent from this username> \
+    -e TELEGRAM_BOT_TOKEN=<your telegram bot token> \
+    -e RSS_DRIVER=ttrss \
+    -e RSS_HOST=<your ttrss host> \
+    -e RSS_USERNAME=<your ttrss username> \
+    -e RSS_PASSWORD=<your ttrss password> \
+    yindaheng98/rssbot
 ```
 
 Send a URL to your RSSBot e.g. `https://twitter.com/DIYgod`:
