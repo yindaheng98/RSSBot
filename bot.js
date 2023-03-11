@@ -44,6 +44,7 @@ async function getUsername() {
                 await new Promise(resolve => setTimeout(resolve, 0));
         }
     }
+    if (!username) process.exit(1);
     return username;
 }
 
