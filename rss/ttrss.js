@@ -15,7 +15,6 @@ async function login() {
 
 let titles = {};
 async function _getCategories() {
-    await login();
     let all = await api.getCategories();
     let _titles = {};
     for (let category of all) {
@@ -27,6 +26,7 @@ async function _getCategories() {
 }
 
 async function getCategories() {
+    await login();
     if (JSON.stringify(titles) === '{}') {
         await _getCategories();
     }
@@ -34,6 +34,7 @@ async function getCategories() {
 }
 
 async function getCategoryTitle(category_id) {
+    await login();
     if (titles[category_id]) {
         _getCategories();
         return titles[category_id]
