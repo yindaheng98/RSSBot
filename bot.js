@@ -7,7 +7,7 @@ const user = require('./user');
 const token = config.telegram_bot_token;
 
 // Create a bot that uses 'polling' to fetch new updates
-const bot = new TelegramBot(token, { polling: true });
+const bot = new TelegramBot(token, { polling: { interval: 30, params: { timeout: 10 } } });
 
 bot._sendMessage = bot.sendMessage
 bot.sendMessage = function (chatId, text, options) {
