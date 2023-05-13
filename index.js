@@ -36,7 +36,7 @@ async function sendParseTo(url, msg) {
     saveParse(url); // 先保存再说
     const chatId = msg.chat.id;
     const msgId = msg.message_id;
-    bot.sendMessage(chatId, `${url}\nPlease select a category to subscribe:`, {
+    bot.sendMessage(chatId, `${url}\nPlease select a category to subscribe`, {
         reply_to_message_id: msgId,
         reply_markup: {
             inline_keyboard: await catInlineKeyboards(url)
@@ -70,7 +70,7 @@ bot.onQuery(/^\/parseto ([0-9]+) (https*:\/\/.+)/, async (msg, match) => { //已
             switch_inline_query_current_chat: `/subscribe ${category_id} ${feed.url}`
         }]);
     }
-    bot.sendMessage(chatId, `Please select a feed to subscribe to ${category_title}:`, {
+    bot.sendMessage(chatId, `Please select a feed to subscribe to ${category_title}`, {
         reply_to_message_id: msgId,
         reply_markup: {
             inline_keyboard: inline_keyboards
@@ -94,14 +94,14 @@ async function sendUnsubscribe() {
     const urls = await db.getAllUrl();
     if (urls.length <= 0) return;
     const url = urls[Math.floor(Math.random() * urls.length)]; //随机选一个返回
-    let msg = `You have this unsubscribed link:\n${url}\nPlease select a category to subscribe:`;
+    let msg = `You have this unsubscribed link:\n${url}\nPlease select a category to subscribe`;
     let feeds = [];
     for (let feed of await getRSSHubLink(url)) {
         feeds.push(feed.url);
     }
     let category_ids = await search_cats_title_by_feeds(feeds, rss);
     if (category_ids.length > 0) {
-        msg = `You have this subscribed link in ${category_ids.join(', ')}:\n${url}\nPlease select a category to update subscription:`;
+        msg = `You have this subscribed link in ${category_ids.join(', ')}:\n${url}\nPlease select a category to update subscription`;
     }
     const inline_keyboards = await catInlineKeyboards(url);
     for (let chatId of user.getChatIds()) {
@@ -156,5 +156,29 @@ bot.onQuery(/^\/subscribe ([0-9]+) (https*:\/\/.+)/, async (msg, match) => {
     const feed_url = match[2];
     sendSubscribe(msg, category_id, feed_url);
 });
+
+async function pongInlineKeyboards() {
+    const inline_keyboards = [];
+    const categories = await rss.getCategories();
+    for (let category_id in categories) {
+        const title = categories[category_id];
+        inline_keyboards.push([{
+            text: title,
+            switch_inline_query_current_chat: `/parseto ${category_id} `
+        }]);
+    }
+    return inline_keyboards
+}
+
+bot.onPing(async (msg) => {
+    const chatId = msg.chat.id;
+    const msgId = msg.message_id;
+    bot.sendMessage(chatId, 'pong! Please select a category to start your subscribing', {
+        reply_to_message_id: msgId,
+        reply_markup: {
+            inline_keyboard: await pongInlineKeyboards()
+        }
+    })
+})
 
 module.exports = { bot, rss, user };

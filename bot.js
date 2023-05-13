@@ -83,4 +83,10 @@ bot.onQuery = async function (regexp, callback) {
     }
 }
 
+bot.setMyCommands([
+    { command: 'ping', description: 'return you something' }
+])
+
+bot.onPing = (callback) => bot.onValidText(new RegExp(`^/ping`), callback)
+
 module.exports = bot;
