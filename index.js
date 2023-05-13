@@ -173,7 +173,8 @@ async function pongInlineKeyboards() {
 bot.onPing(async (msg) => {
     const chatId = msg.chat.id;
     const msgId = msg.message_id;
-    bot.sendMessage(chatId, 'pong! Please select a category to start your subscribing', {
+    const urls = await db.getAllUrl();
+    bot.sendMessage(chatId, `pong! I have saved ${urls.length} urls.\nPlease select a category to start your subscribing`, {
         reply_to_message_id: msgId,
         reply_markup: {
             inline_keyboard: await pongInlineKeyboards()
