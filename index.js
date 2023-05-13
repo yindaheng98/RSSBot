@@ -145,6 +145,7 @@ async function sendPong() {
         });
     }
 }
+bot.on('message', sendPong);
 
 async function sendSubscribe(msg, category_id, feed_url) {
     const chatId = msg.chat.id;
