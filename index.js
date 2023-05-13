@@ -118,6 +118,34 @@ if (config.unsubscribe_check === "cron") {
     bot.on('message', sendUnsubscribe);
 }
 
+async function pongInlineKeyboards() {
+    const inline_keyboards = [];
+    const categories = await rss.getCategories();
+    for (let category_id in categories) {
+        const title = categories[category_id];
+        inline_keyboards.push([{
+            text: title,
+            switch_inline_query_current_chat: `/parseto ${category_id} `
+        }]);
+    }
+    return inline_keyboards
+}
+async function sendPong() {
+    const urls = await db.getAllUrl();
+    let msg = 'No url saved'
+    if (urls.length > 0)
+        msg = `There are still ${urls.length} saved urls`
+    msg += '\nPlease select a category to start your next subscription'
+    const inline_keyboards = await pongInlineKeyboards();
+    for (let chatId of user.getChatIds()) {
+        bot.sendMessage(chatId, msg, {
+            reply_markup: {
+                inline_keyboard: inline_keyboards
+            }
+        });
+    }
+}
+
 async function sendSubscribe(msg, category_id, feed_url) {
     const chatId = msg.chat.id;
     const msgId = msg.message_id;
@@ -149,6 +177,7 @@ async function sendSubscribe(msg, category_id, feed_url) {
         });
     }
     sendUnsubscribe();
+    sendPong();
 }
 
 bot.onQuery(/^\/subscribe ([0-9]+) (https*:\/\/.+)/, async (msg, match) => {
@@ -157,24 +186,11 @@ bot.onQuery(/^\/subscribe ([0-9]+) (https*:\/\/.+)/, async (msg, match) => {
     sendSubscribe(msg, category_id, feed_url);
 });
 
-async function pongInlineKeyboards() {
-    const inline_keyboards = [];
-    const categories = await rss.getCategories();
-    for (let category_id in categories) {
-        const title = categories[category_id];
-        inline_keyboards.push([{
-            text: title,
-            switch_inline_query_current_chat: `/parseto ${category_id} `
-        }]);
-    }
-    return inline_keyboards
-}
-
 bot.onPing(async (msg) => {
     const chatId = msg.chat.id;
     const msgId = msg.message_id;
     const urls = await db.getAllUrl();
-    bot.sendMessage(chatId, `pong! I have saved ${urls.length} urls.\nPlease select a category to start your subscribing`, {
+    bot.sendMessage(chatId, `pong! I have saved ${urls.length} urls.\nPlease select a category to start your subscription`, {
         reply_to_message_id: msgId,
         reply_markup: {
             inline_keyboard: await pongInlineKeyboards()
