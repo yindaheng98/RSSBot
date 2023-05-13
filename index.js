@@ -57,9 +57,9 @@ bot.onQuery(/^\/parseto ([0-9]+) (https*:\/\/.+)/, async (msg, match) => { //已
     const chatId = msg.chat.id;
     const msgId = msg.message_id;
     const category_id = parseInt(match[1]);
-    const category_title = await rss.getCategoryTitle(category_id);
     const url = match[2];
     saveParse(url); // 先保存再说
+    const category_title = await rss.getCategoryTitle(category_id);
     const feeds = await getRSSHubLink(url);
     if (feeds.length === 1) { // 如果只有一个就直接订阅之
         return sendSubscribe(msg, category_id, feeds[0].url);
