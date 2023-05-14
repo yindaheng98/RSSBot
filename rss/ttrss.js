@@ -44,38 +44,56 @@ async function getCategoryTitle(category_id) {
     }
 }
 
+let feeds = {}
+let feed_updates = {}
+async function _getFeeds(cid) {
+    if (feeds[cid] && feed_updates[cid] && Date.now() - feed_updates[cid] < 1000) {
+        return feeds[cid]
+    }
+    feeds[cid] = await api.getFeeds({ categoryId: cid })
+    feed_updates[cid] = Date.now()
+    return feeds[cid]
+}
+
 async function subscribeToFeed(category_id, feed_url) {
-    await login();
-    const categories = await getCategories();
-    L:
-    for (let cid in categories) {
-        const feeds = await api.getFeeds({ categoryId: cid });
-        for (let feed of feeds) {
-            if (feed.feed_url === feed_url) {
-                if ('' + category_id !== cid) {
-                    await api.unsubscribeFeed({ feed_id: feed.id });
-                    break L;
+    try {
+        await login();
+        const categories = await getCategories();
+        L:
+        for (let cid in categories) {
+            const feeds = await _getFeeds(cid);
+            for (let feed of feeds) {
+                if (feed.feed_url === feed_url) {
+                    if ('' + category_id !== cid) {
+                        await api.unsubscribeFeed({ feed_id: feed.id });
+                        break L;
+                    }
                 }
             }
         }
+        const status = await api.subscribeToFeed({ feed_url: feed_url, category_id: category_id });
+        if (status.code <= 1) {
+            return { ok: true };
+        }
+        return { ok: false, err: JSON.stringify(status) };
+    } catch (e) {
+        return { ok: false, err: JSON.stringify(e) };
     }
-    const status = await api.subscribeToFeed({ feed_url: feed_url, category_id: category_id });
-    if (status.code <= 1) {
-        return { ok: true };
-    }
-    return { ok: false, err: JSON.stringify(status) };
 }
 
 async function isSubscribed(feed_url) {
-    await login();
-    const categories = await getCategories();
-    for (let category_id in categories) {
-        const feeds = await api.getFeeds({ categoryId: category_id });
-        for (let feed of feeds) {
-            if (feed.feed_url === feed_url) {
-                return category_id
+    try {
+        await login();
+        const categories = await getCategories();
+        for (let category_id in categories) {
+            const feeds = await api.getFeeds({ categoryId: category_id });
+            for (let feed of feeds) {
+                if (feed.feed_url === feed_url) {
+                    return category_id
+                }
             }
         }
+    } catch (e) {
     }
 }
 
