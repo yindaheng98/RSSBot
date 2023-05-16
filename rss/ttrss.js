@@ -1,4 +1,5 @@
 const config = require('../config');
+const logger = require('../utils/logger')
 const ApiFactory = require('ttrss-js-api2').ApiFactory;
 const api = ApiFactory.build(config.rss_host);
 
@@ -55,7 +56,7 @@ async function _getFeeds(cid) {
     return feeds[cid]
 }
 
-async function subscribeToFeed(category_id, feed_url) {
+async function _subscribeToFeed(category_id, feed_url) {
     try {
         await login();
         const categories = await getCategories();
@@ -77,8 +78,16 @@ async function subscribeToFeed(category_id, feed_url) {
         }
         return { ok: false, err: JSON.stringify(status) };
     } catch (e) {
-        return { ok: false, err: JSON.stringify(e) };
+        return { ok: false, should_retry: true, err: e };
     }
+}
+async function subscribeToFeed(category_id, feed_url) {
+    let status = _subscribeToFeed(category_id, feed_url);
+    while (status.should_retry) {
+        logger.warn("TTRSS subscribe error", status.err)
+        status = _subscribeToFeed(category_id, feed_url);
+    }
+    return status
 }
 
 async function isSubscribed(feed_url) {
