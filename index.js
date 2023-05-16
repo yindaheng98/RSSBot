@@ -36,8 +36,7 @@ async function sendParseTo(url, msg) {
     saveParse(url); // 先保存再说
     const chatId = msg.chat.id;
     const msgId = msg.message_id;
-    bot.sendMessage(chatId, `${url}\nPlease select a category to subscribe`, {
-        reply_to_message_id: msgId,
+    bot.sendDeleteMessage(chatId, msgId, `${url}\nPlease select a category to subscribe`, {
         reply_markup: {
             inline_keyboard: await catInlineKeyboards(url)
         }
@@ -71,8 +70,7 @@ bot.onQuery(/^\/parseto ([0-9]+) (https*:\/\/.+)/, async (msg, match) => { //已
             switch_inline_query_current_chat: `/subscribe ${category_id} ${feed.url}`
         }]);
     }
-    bot.sendMessage(chatId, `Please select a feed to subscribe to ${category_title}`, {
-        reply_to_message_id: msgId,
+    bot.sendDeleteMessage(chatId, msgId, `Please select a feed to subscribe to ${category_title}`, {
         reply_markup: {
             inline_keyboard: inline_keyboards
         }
@@ -161,10 +159,8 @@ async function sendSubscribe(msg, category_id, feed_url) {
         err = res.err;
     }
     if (ok) {
-        bot.sendMessage(chatId, `Subscribed to ${category_title}: ${feed_url}`, {
-            reply_to_message_id: msgId
-        });
         db.delUrlByFeedurl(feed_url);
+        bot.sendDeleteMessage(chatId, msgId, `Subscribed to ${category_title}: ${feed_url}`);
     } else {
         const inline_keyboards = [[{
             text: 'Retry it',

@@ -83,6 +83,11 @@ bot.onQuery = async function (regexp, callback) {
     }
 }
 
+bot.sendDeleteMessage = async function (chatId, delMsgId, text, options) {
+    await bot.sendMessage(chatId, text, options);
+    await bot.deleteMessage(chatId, delMsgId); // 阅后即焚
+}
+
 bot.setMyCommands([
     { command: 'ping', description: 'return you something' }
 ])
