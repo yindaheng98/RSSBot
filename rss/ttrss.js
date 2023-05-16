@@ -82,10 +82,10 @@ async function _subscribeToFeed(category_id, feed_url) {
     }
 }
 async function subscribeToFeed(category_id, feed_url) {
-    let status = _subscribeToFeed(category_id, feed_url);
+    let status = await _subscribeToFeed(category_id, feed_url);
     while (status.should_retry) {
         logger.warn("TTRSS subscribe error", status.err)
-        status = _subscribeToFeed(category_id, feed_url);
+        status = await _subscribeToFeed(category_id, feed_url);
     }
     return status
 }
