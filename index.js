@@ -82,9 +82,7 @@ bot.onQuery(/^\/unparse (https*:\/\/.+)/, async (msg, match) => { //取消
     const msgId = msg.message_id;
     const url = match[1];
     db.delUrl(url);
-    bot.sendMessage(chatId, `Canceled: ${url}`, {
-        reply_to_message_id: msgId
-    });
+    bot.sendDeleteMessage(chatId, msgId, `Canceled: ${url}`);
 });
 
 const schedule = require('node-schedule');
