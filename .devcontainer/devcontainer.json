@@ -1,0 +1,13 @@
+{
+    "name": "RSSBot Dev Container",
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "rssbot",
+    "workspaceFolder": "/app",
+    "shutdownAction": "stopCompose",
+    "extensions": [
+        "ms-vscode.cpptools",
+        "ms-vscode.cmake-tools",
+        "mutantdino.resourcemonitor",
+        "ms-azuretools.vscode-docker",
+    ]
+}

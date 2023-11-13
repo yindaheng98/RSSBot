@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  rssbot:
+    image: rssbot:latest
+    build:
+      context: ..
+      dockerfile: ./Dockerfile
+    stdin_open: true
+    tty: true
+    volumes:
+      - ../:/app
+    working_dir: /app
+    command: /bin/sh

@@ -2,7 +2,7 @@ let envs = process.env;
 config = {
     proxy: envs.GLOBAL_AGENT_HTTP_PROXY || envs.GLOBAL_AGENT_HTTPS_PROXY || envs.HTTP_PROXY || envs.HTTPS_PROXY,
     radar_url: envs.RADAR_URL || "https://raw.githubusercontent.com/DIYgod/RSSHub/master/assets/radar-rules.js",
-    radar_update_interval: parseInt(envs.RADAR_UPDATE_INTERVAL) * 1000 || 3600,
+    radar_update_interval: parseInt(envs.RADAR_UPDATE_INTERVAL) * 1000 || 3600 * 1000,
     telegram_bot_token: envs.TELEGRAM_BOT_TOKEN,
     rsshub_domain: envs.RSSHUB_DOMAIN || "https://rsshub.app",
     logger_level: envs.LOGGER_LEVEL || 'info',
@@ -19,6 +19,7 @@ config = {
     rss_host: envs.RSS_HOST,
     rss_username: envs.RSS_USERNAME,
     rss_password: envs.RSS_PASSWORD,
+    rss_update_interval: parseInt(envs.RSS_UPDATE_INTERVAL) * 1000 || 3600 * 1000,
 
     // check the unsubscribed links
     unsubscribe_check: envs.UNSUB_CHECK || 'cron',
