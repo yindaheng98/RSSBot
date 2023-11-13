@@ -10,7 +10,7 @@ fs.mkdirSync(path.dirname(config.unsubscribe_db_path), { recursive: true });
 try {
     db = JSON.parse(fs.readFileSync(config.unsubscribe_db_path));
 } catch (e) {
-    logger.warn("Cannot read database", e);
+    logger.warn(`Cannot read database: ${e}`);
 }
 
 for (let url in db) {
@@ -21,8 +21,8 @@ for (let url in db) {
 }
 
 function write() {
-    return fs.writeFile(config.unsubscribe_db_path, JSON.stringify(db), (err) => {
-        if (err) logger.warn("Cannot write database", err);
+    return fs.writeFile(config.unsubscribe_db_path, JSON.stringify(db), (e) => {
+        if (e) logger.warn(`Cannot read database: ${e}`);
     });
 }
 

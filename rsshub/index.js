@@ -40,4 +40,5 @@ async function getRSSHubLink(url) {
     }
     return feeds
 }
+
 module.exports = { getRSSHubLink };

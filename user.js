@@ -9,12 +9,12 @@ fs.mkdirSync(path.dirname(config.user_db_path), { recursive: true });
 try {
     chatIds = JSON.parse(fs.readFileSync(config.user_db_path));
 } catch (e) {
-    logger.warn("Cannot read user database", e);
+    logger.warn(`Cannot read database: ${e}`);
 }
 
 function write() {
-    return fs.writeFile(config.user_db_path, JSON.stringify(chatIds), (err) => {
-        if (err) logger.warn("Cannot write user database", err);
+    return fs.writeFile(config.user_db_path, JSON.stringify(chatIds), (e) => {
+        if (e) logger.warn(`Cannot read database: ${e}`);
     });
 }
 
