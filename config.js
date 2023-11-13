@@ -20,6 +20,7 @@ config = {
     rss_username: envs.RSS_USERNAME,
     rss_password: envs.RSS_PASSWORD,
     rss_update_interval: parseInt(envs.RSS_UPDATE_INTERVAL) * 1000 || 3600 * 1000,
+    rss_concurrency: parseInt(envs.RSS_CONCURRENCY) || 4,
 
     // check the unsubscribed links
     unsubscribe_check: envs.UNSUB_CHECK || 'cron',

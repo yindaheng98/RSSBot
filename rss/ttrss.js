@@ -1,6 +1,7 @@
 const config = require('../config')
 const logger = require('../utils/logger')
 const got = require('../utils/got')
+const async = require('async')
 
 let sid = undefined
 let sid_updates = undefined
@@ -54,8 +55,8 @@ async function getCategoryTitle(category_id) {
     return titles[category_id]
 }
 
-let feeds = {}
-let feed_updates = {}
+const feeds = {}
+const feed_updates = {}
 async function _getFeeds(cid) {
     if (feeds[cid] && feed_updates[cid] && Date.now() - feed_updates[cid] < config.rss_update_interval) {
         return feeds[cid]
@@ -105,35 +106,41 @@ async function _subscribeToFeed(category_id, feed_url) {
     }
 }
 
+const tobe_subscribe_queue = async.queue((task, callback) => {
+    logger.info(`Processing subscription: ${task.category_id} <- ${task.feed_url}`)
+    _subscribeToFeed(task.category_id, task.feed_url)
+        .then((status) => {
+            if (!status.should_retry) {
+                callback(null, status)
+            } else {
+                logger.warn(`TTRSS subscribe error: ${status.err}`)
+                tobe_subscribe_queue.push(task, callback)
+            }
+        })
+        .catch((err) => {
+            callback(err)
+        })
+}, config.rss_concurrency)
+
 async function subscribeToFeed(category_id, feed_url) {
-    let status = await _subscribeToFeed(category_id, feed_url)
-    while (status.should_retry) {
-        logger.warn("TTRSS subscribe error", status.err)
-        status = await _subscribeToFeed(category_id, feed_url)
-    }
-    return status
+    return new Promise((resolve, reject) => {
+        tobe_subscribe_queue.push(
+            { category_id: category_id, feed_url: feed_url },
+            (err, result) => {
+                if (err) reject(err)
+                else resolve(result)
+            })
+    })
 }
 
 async function isSubscribed(feed_url) {
-    try {
-        await login()
-        const categories = await getCategories()
-        for (let category_id in categories) {
-            const { content } = await got.post(config.rss_host, {
-                json: {
-                    sid: sid,
-                    op: 'getFeeds',
-                    cat_id: category_id
-                }
-            }).json()
-            const feeds = await _getFeeds(category_id)
-            for (let feed of feeds) {
-                if (feed.feed_url === feed_url) {
-                    return category_id
-                }
+    await login()
+    for (let category_id in await getCategories()) {
+        for (let feed of await _getFeeds(category_id)) {
+            if (feed.feed_url === feed_url) {
+                return category_id
             }
         }
-    } catch (e) {
     }
 }
 
