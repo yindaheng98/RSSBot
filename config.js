@@ -8,7 +8,6 @@ config = {
     logger_level: envs.LOGGER_LEVEL || 'info',
     no_logfiles: envs.NO_LOGFILES,
     is_package: envs.IS_PACKAGE,
-    rsshub_parser: envs.RSSHUB_PARSER || 'rssaid',
     reply_received: envs.REPLY_RECEIVED || "false",
     valid_username: envs.VALID_USERNAME,
     unsubscribe_db_path: envs.UNSUB_DB_PATH || 'db/unsubscribe.json',
