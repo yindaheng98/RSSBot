@@ -87,6 +87,7 @@ bot.onQuery(/^\/unparse (https*:\/\/.+)/, async (msg, match) => { //取消
 
 const schedule = require('node-schedule');
 const logger = require('./utils/logger');
+const current_unsubscribe_msgs = {};
 async function sendUnsubscribe() {
     const urls = await db.getAllUrl();
     if (urls.length <= 0) return;
@@ -102,17 +103,27 @@ async function sendUnsubscribe() {
     }
     const inline_keyboards = await catInlineKeyboards(url);
     for (let chatId of user.getChatIds()) {
-        bot.sendMessage(chatId, msg, {
+        let sent = await bot.sendMessage(chatId, msg, {
             reply_markup: {
                 inline_keyboard: inline_keyboards
             }
         });
+        current_unsubscribe_msgs[chatId] = sent;
     }
 }
+async function editUnsubscribe() {
+    for (let chatId of user.getChatIds()) {
+        if (!current_unsubscribe_msgs[chatId]) continue;
+        let msg = current_unsubscribe_msgs[chatId];
+        await bot.deleteMessage(chatId, msg.message_id);
+        delete current_unsubscribe_msgs[chatId];
+    }
+    sendUnsubscribe();
+}
 if (config.unsubscribe_check === "cron") {
-    schedule.scheduleJob(config.unsubscribe_check_cron, sendUnsubscribe);
+    schedule.scheduleJob(config.unsubscribe_check_cron, editUnsubscribe);
 } else {
-    bot.on('message', sendUnsubscribe);
+    bot.on('message', editUnsubscribe);
 }
 
 async function pongInlineKeyboards() {

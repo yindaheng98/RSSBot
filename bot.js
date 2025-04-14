@@ -12,7 +12,7 @@ const bot = new TelegramBot(token, { polling: true });
 bot._sendMessage = bot.sendMessage
 bot.sendMessage = function (chatId, text, options) {
     logger.info(`Message back ${chatId}: ${text}`);
-    bot._sendMessage(chatId, text, options)
+    return bot._sendMessage(chatId, text, options)
 }
 // Listen for any kind of message. There are different kinds of
 // messages.
