@@ -88,7 +88,7 @@ bot.onQuery(/^\/unparse (https*:\/\/.+)/, async (msg, match) => { //取消
 const schedule = require('node-schedule');
 const logger = require('./utils/logger');
 const current_unsubscribe_msgs = {};
-async function sendUnsubscribe() {
+async function sendUnsubscribe(record = false) {
     const urls = await db.getAllUrl();
     if (urls.length <= 0) return;
     const url = urls[Math.floor(Math.random() * urls.length)]; //随机选一个返回
@@ -108,7 +108,7 @@ async function sendUnsubscribe() {
                 inline_keyboard: inline_keyboards
             }
         });
-        current_unsubscribe_msgs[chatId] = sent;
+        if (record) current_unsubscribe_msgs[chatId] = sent;
     }
 }
 async function editUnsubscribe() {
@@ -118,7 +118,7 @@ async function editUnsubscribe() {
         await bot.deleteMessage(chatId, msg.message_id);
         delete current_unsubscribe_msgs[chatId];
     }
-    sendUnsubscribe();
+    sendUnsubscribe(true);
 }
 if (config.unsubscribe_check === "cron") {
     schedule.scheduleJob(config.unsubscribe_check_cron, editUnsubscribe);
